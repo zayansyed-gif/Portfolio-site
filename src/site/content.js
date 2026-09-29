@@ -5,8 +5,8 @@ export const profileLinks = {
   github: 'https://github.com/zayansyed-gif',
   linkedin: 'https://www.linkedin.com/in/zayan-syed0925',
   email: 'mailto:Zayansyed0925@gmail.com',
-  // Keep this path in sync with the resume PDF in the public folder.
-  resume: '/Zayan_Syed_Resume_pdf.pdf',
+  // BASE_URL keeps the PDF link working both locally and under GitHub Pages.
+  resume: `${import.meta.env.BASE_URL}Zayan_Syed_Resume_pdf.pdf`,
 }
 
 export const projects = [
