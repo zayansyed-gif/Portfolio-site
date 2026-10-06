@@ -120,7 +120,7 @@ function Hero() {
       <p className="hero-note">BSc Computer Science <span>·</span> Expected May 2030 <button className="palette-shortcut" type="button" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>⌘K / Ctrl K</button></p>
     </div>
     <div className="currently" aria-label="Currently">
-      <div><span>Currently building</span><strong>Smart Donation Kiosk System</strong></div>
+      <div><span>Featured concept</span><strong>Space Mission Dashboard</strong></div>
       <div><span>Currently learning</span><strong>Python</strong></div>
       <div><span>Based in</span><strong>Mississauga · GTA</strong></div>
     </div>
@@ -139,13 +139,13 @@ function ProjectShowcase({ project, index }) {
     <span className="project-background-number" aria-hidden="true">{project.number}</span>
     <div className="project-inner editorial-width">
       <div className="project-copy">
-        <p className="project-kicker">{project.number} <span>/</span> FEATURED PROJECT</p>
+        <p className="project-kicker">{project.number} <span>/</span> PROJECT CONCEPT</p>
         <h2 className="project-title">{project.displayTitle.map((line) => <span key={line}>{line}</span>)}</h2>
         <p className="project-description">{project.description}</p>
         <ul className="tech-list" aria-label="Technologies">{project.technologies.map((tech) => <li key={tech}>{tech}</li>)}</ul>
         <div className="project-actions">
           <button className="project-details-toggle text-link" type="button" onClick={() => setDetailsOpen((value) => !value)} aria-expanded={detailsOpen} aria-controls={`details-${project.kind}`}>
-            {detailsOpen ? 'Close details' : 'Explore project'} <Icon name="arrow" size={15} />
+            {detailsOpen ? 'Close details' : 'Explore concept'} <Icon name="arrow" size={15} />
           </button>
           {isPlaceholder
             ? <span className="github-project unavailable" title="Add the repository URL in src/site/content.js when it is available"><Icon name="github" size={16} />GitHub link coming soon</span>
@@ -154,14 +154,14 @@ function ProjectShowcase({ project, index }) {
         <div className="detail-content" id={`details-${project.kind}`} hidden={!detailsOpen}>
           <div><h3>Overview</h3><p>{project.description}</p></div>
           <div><h3>Problem</h3><p>{project.problem}</p></div>
-          <div><h3>What I worked on</h3><p>{project.contribution}</p></div>
-          <div><h3>Current scope</h3><ul>{project.features.map((feature) => <li key={feature}>{feature}</li>)}</ul></div>
-          <div><h3>Technologies</h3><p>{project.technologies.join(' · ')}</p></div>
+          <div><h3>Concept and planning</h3><p>{project.contribution}</p></div>
+          <div><h3>Planned scope</h3><ul>{project.features.map((feature) => <li key={feature}>{feature}</li>)}</ul></div>
+          <div><h3>Tools and integrations</h3><p>{project.technologies.join(' · ')}</p></div>
         </div>
       </div>
       <button className="project-visual" type="button" data-project-visual aria-label={`View details for ${project.title}`} aria-expanded={detailsOpen} aria-controls={`details-${project.kind}`} onClick={() => setDetailsOpen((value) => !value)}>
         {project.image ? <img src={project.image} alt={`${project.title} screenshot`} loading="lazy" /> : <div className={`preview-placeholder preview-${project.kind}`}>
-          <span className="preview-placeholder-note">PROJECT PREVIEW · REPLACE WITH SCREENSHOT</span>
+          <span className="preview-placeholder-note">PROJECT CONCEPT · PREVIEW TO COME</span>
           <span className="preview-wordmark">{project.previewWord}</span>
           <span className="preview-bottom">{project.previewCaption}</span>
           <span className="preview-orbit" />
