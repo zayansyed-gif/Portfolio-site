@@ -12,15 +12,25 @@ export const profileLinks = {
 export const projects = [
   {
     number: '01', title: 'Smart Donation Kiosk System',
+    displayTitle: ['SMART', 'DONATION', 'KIOSK SYSTEM'],
+    previewWord: 'GIVE', previewCaption: 'CASH · CARD · QR · ONLINE',
     description: 'A digital donation system designed to modernize donation tracking and support cash, card, QR code, and online donations.',
+    problem: 'Donation tracking that supports several ways to give.',
+    contribution: 'Worked with a team at Rowdah Center on the kiosk system and helped plan how its frontend, backend, payment services, and database fit together.',
+    features: ['Cash donations', 'Card donations', 'QR code donations', 'Online donations'],
     technologies: ['JavaScript', 'React', 'Node.js / Python', 'Firebase / MySQL', 'Stripe / Square'],
-    github: 'https://github.com/REPLACE_WITH_SMART_DONATION_KIOSK_REPOSITORY', kind: 'donation',
+    github: '', image: '', kind: 'donation',
   },
   {
     number: '02', title: '30 Days of Python',
+    displayTitle: ['30 DAYS', 'OF PYTHON'],
+    previewWord: 'PY', previewCaption: 'PYTHON · EXERCISES · PRACTICE',
     description: 'A collection of Python exercises and small programs created while learning Python fundamentals and problem solving.',
+    problem: 'Practice Python fundamentals and problem solving through regular exercises.',
+    contribution: 'A collection of Python exercises and small programs.',
+    features: ['Python exercises', 'Small practice programs'],
     technologies: ['Python', 'Git', 'GitHub'],
-    github: profileLinks.github, kind: 'python',
+    github: profileLinks.github, image: '', kind: 'python',
   },
 ]
 

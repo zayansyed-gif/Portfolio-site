@@ -1,8 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import Artwork from './Artwork.jsx'
-import { contactLinks, education, experience, profileLinks, projects, roles, skillGroups } from './content.js'
+import React, { useEffect, useRef, useState } from 'react'
+import { contactLinks, education, experience, profileLinks, projects, skillGroups } from './content.js'
 
-const navigation = [['About', '#about'], ['Projects', '#projects'], ['Experience', '#experience'], ['Skills', '#skills'], ['Contact', '#contact']]
+const navigation = [['About', '#about'], ['Projects', '#projects'], ['Experience', '#experience'], ['Skills', '#skills'], ['Education', '#education'], ['Contact', '#contact']]
+const commandItems = [
+  { label: 'Projects', hint: 'View selected work', href: '#projects' },
+  { label: 'About', hint: 'A little about me', href: '#about' },
+  { label: 'Experience', hint: 'Work and community', href: '#experience' },
+  { label: 'Resume', hint: 'Open PDF', href: profileLinks.resume, external: true },
+  { label: 'GitHub', hint: 'Visit profile', href: profileLinks.github, external: true },
+  { label: 'LinkedIn', hint: 'Visit profile', href: profileLinks.linkedin, external: true },
+  { label: 'Contact', hint: 'Get in touch', href: '#contact' },
+]
 
 function Icon({ name, size = 17 }) {
   const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }
@@ -15,58 +23,297 @@ function Icon({ name, size = 17 }) {
 }
 
 function Navigation() {
-  return <header className="topbar"><div className="nav-inner"><a className="brand" href="#home">Zayan Syed<span>.</span></a><nav aria-label="Main navigation">{navigation.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</nav><div className="nav-actions"><a className="social-icon" href={profileLinks.github} target="_blank" rel="noreferrer" aria-label="Visit Zayan’s GitHub"><Icon name="github" /></a><a className="social-icon" href={profileLinks.linkedin} target="_blank" rel="noreferrer" aria-label="Visit Zayan’s LinkedIn"><Icon name="linkedin" /></a><a className="resume-button" href={profileLinks.resume} target="_blank" rel="noreferrer" aria-label="Open Zayan’s resume PDF in a new tab"><Icon name="file" />Resume</a></div></div></header>
+  return <header className="topbar"><div className="nav-inner">
+    <a className="brand" href="#home">Zayan Syed<span>.</span></a>
+    <nav aria-label="Main navigation">{navigation.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</nav>
+    <div className="nav-actions">
+      <a className="social-icon" href={profileLinks.github} target="_blank" rel="noreferrer" aria-label="Visit Zayan’s GitHub"><Icon name="github" /></a>
+      <a className="social-icon" href={profileLinks.linkedin} target="_blank" rel="noreferrer" aria-label="Visit Zayan’s LinkedIn"><Icon name="linkedin" /></a>
+      <a className="resume-button" href={profileLinks.resume} target="_blank" rel="noreferrer"><Icon name="file" />Resume</a>
+    </div>
+  </div></header>
 }
 
-function Eyebrow({ children }) { return <div className="eyebrow"><span />{children}</div> }
-
-function RoleRotator() {
-  const [current, setCurrent] = useState(0)
+function CommandPalette() {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [activeIndex, setActiveIndex] = useState(0)
+  const inputRef = useRef(null)
+  const previousFocusRef = useRef(null)
   useEffect(() => {
-    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
-    if (motionPreference.matches) return undefined
-    const timer = window.setInterval(() => setCurrent((role) => (role + 1) % roles.length), 3200)
-    return () => window.clearInterval(timer)
+    const onKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        previousFocusRef.current = document.activeElement
+        setOpen((value) => !value)
+      }
+      if (event.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
-  return <div className="role-line" aria-label={roles[current]}><span key={current}>{roles[current]}</span></div>
+  useEffect(() => {
+    if (open) {
+      setQuery('')
+      setActiveIndex(0)
+      requestAnimationFrame(() => inputRef.current?.focus())
+    } else {
+      previousFocusRef.current?.focus?.()
+    }
+  }, [open])
+  const filtered = commandItems.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowDown' && filtered.length) {
+      event.preventDefault()
+      setActiveIndex((index) => (index + 1) % filtered.length)
+    } else if (event.key === 'ArrowUp' && filtered.length) {
+      event.preventDefault()
+      setActiveIndex((index) => (index - 1 + filtered.length) % filtered.length)
+    } else if (event.key === 'Enter' && filtered[activeIndex]) {
+      event.preventDefault()
+      document.getElementById(`palette-option-${activeIndex}`)?.click()
+    }
+  }
+  if (!open) return null
+  return <div className="palette-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false) }}>
+    <section className="command-palette" role="dialog" aria-modal="true" aria-label="Quick navigation">
+      <label className="sr-only" htmlFor="command-search">Search portfolio actions</label>
+      <input ref={inputRef} id="command-search" value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0) }} onKeyDown={handleKeyDown} placeholder="Where would you like to go?" />
+      <p className="palette-label">QUICK LINKS</p>
+      <div className="palette-options">{filtered.map((item, index) => <a id={`palette-option-${index}`} className={index === activeIndex ? 'active' : ''} key={item.label} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined} tabIndex={index === activeIndex ? 0 : -1} onMouseEnter={() => setActiveIndex(index)} onClick={() => setOpen(false)}><span>{item.label}</span><small>{item.hint}</small><kbd>↵</kbd></a>)}{filtered.length === 0 && <p className="no-results">No matching links.</p>}</div>
+      <div className="palette-footer"><span><kbd>esc</kbd> to close</span><span>Navigate Zayan’s portfolio</span></div>
+    </section>
+  </div>
 }
 
 function Hero() {
-  return <section className="hero" id="home"><div className="hero-copy"><Eyebrow>MISSISSAUGA · ONTARIO</Eyebrow><h1>Hi! I’m <span>Zayan</span></h1><RoleRotator /><p className="hero-description">Computer Science student at Toronto Metropolitan University interested in software development, robotics, cloud computing, and building useful technology.</p><div className="hero-actions"><a className="button button-primary" href={profileLinks.email}>Let’s Chat <Icon name="arrow" size={16} /></a><a className="button button-outline" href={profileLinks.resume} target="_blank" rel="noreferrer" aria-label="Open Zayan’s resume PDF in a new tab">My Resume <Icon name="file" size={15} /></a></div><div className="hero-note"><span className="availability-dot" />BSc Computer Science · Expected May 2030</div></div><div className="portrait-column"><div className="portrait-glow" /><div className="portrait-ring"><div className="portrait-inner"><div className="portrait-moon" /><div className="portrait-stars"><i /><i /><i /><i /></div><div className="portrait-monogram">Z<span>.</span></div></div></div><div className="portrait-orbit orbit-one" /><div className="portrait-orbit orbit-two" /><span className="portrait-side-note">CURIOUS BY NATURE · BUILDER BY CHOICE</span></div><a className="scroll-cue" href="#about"><span />Scroll to explore</a></section>
+  const shapeRef = useRef(null)
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const finePointer = window.matchMedia('(pointer: fine)').matches
+    if (reduceMotion || !finePointer || !shapeRef.current) return undefined
+    let frame = 0
+    const onPointerMove = (event) => {
+      if (frame) cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const x = (event.clientX / window.innerWidth - .5) * 13
+        const y = (event.clientY / window.innerHeight - .5) * 10
+        shapeRef.current?.style.setProperty('--shape-x', `${x.toFixed(1)}px`)
+        shapeRef.current?.style.setProperty('--shape-y', `${y.toFixed(1)}px`)
+        frame = 0
+      })
+    }
+    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    return () => { window.removeEventListener('pointermove', onPointerMove); if (frame) cancelAnimationFrame(frame) }
+  }, [])
+  return <section className="hero page-width" id="home">
+    <div className="hero-copy">
+      <p className="eyebrow">COMPUTER SCIENCE · TORONTO METROPOLITAN UNIVERSITY</p>
+      <h1><span>HEY, I’M</span><strong>ZAYAN<span>.</span></strong></h1>
+      <p className="hero-description">Computer Science student building software, exploring new technologies, and learning by making things.</p>
+      <div className="hero-actions">
+        <a className="button button-primary" href="#projects">View projects <Icon name="arrow" size={16} /></a>
+        <a className="button button-outline" href={profileLinks.resume} target="_blank" rel="noreferrer">Resume <Icon name="file" size={15} /></a>
+        <a className="button button-text" href={profileLinks.github} target="_blank" rel="noreferrer">GitHub <Icon name="arrow" size={14} /></a>
+        <a className="button button-text" href={profileLinks.linkedin} target="_blank" rel="noreferrer">LinkedIn <Icon name="arrow" size={14} /></a>
+      </div>
+      <p className="hero-note">BSc Computer Science <span>·</span> Expected May 2030 <button className="palette-shortcut" type="button" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>⌘K / Ctrl K</button></p>
+    </div>
+    <div className="currently" aria-label="Currently">
+      <div><span>Currently building</span><strong>Smart Donation Kiosk System</strong></div>
+      <div><span>Currently learning</span><strong>Python</strong></div>
+      <div><span>Based in</span><strong>Mississauga · GTA</strong></div>
+    </div>
+    <div className="hero-object" ref={shapeRef} aria-hidden="true"><i /><b /><span /></div>
+  </section>
 }
 
-function About() {
-  return <section className="section about-section" id="about"><div className="section-heading"><Eyebrow>01 / A LITTLE ABOUT ME</Eyebrow><h2>About <em>Me</em></h2></div><div className="about-grid"><div className="about-lede"><span className="quote-mark">“</span><p>I’m a Computer Science student at Toronto Metropolitan University interested in software development, robotics, cloud computing, and artificial intelligence.</p></div><div className="about-copy"><p>I enjoy learning through building projects and experimenting with new technologies. I’m drawn to ideas that turn into useful things, from software tools to systems that make everyday work a little easier.</p><div className="about-tags"><span>Mississauga, Ontario</span><span>BSc Computer Science</span><span>Expected May 2030</span></div></div></div></section>
+function SectionHeading({ label, title, description }) {
+  return <div className="section-heading"><div><p className="eyebrow">{label}</p><h2>{title}</h2></div>{description && <p className="section-description">{description}</p>}</div>
 }
 
-function ProjectArtwork({ kind }) {
-  return <div className={`project-art art-${kind}`} aria-hidden="true"><div className="art-sky"><i className="art-star">✳</i><i className="art-moon" /><i className="art-swirl swirl-a" /><i className="art-swirl swirl-b" /><i className="art-horizon" /><i className="art-subject">{kind === 'python' ? 'Py' : 'QR'}</i></div></div>
+function ProjectShowcase({ project, index }) {
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const isPlaceholder = !project.github || project.github.includes('REPLACE_WITH_')
+  return <section id={index === 0 ? 'projects' : `project-${project.kind}`} className={`project-showcase project-theme-${project.kind} ${index % 2 ? 'project-reverse' : ''} scroll-reveal`}>
+    <span className="project-background-number" aria-hidden="true">{project.number}</span>
+    <div className="project-inner editorial-width">
+      <div className="project-copy">
+        <p className="project-kicker">{project.number} <span>/</span> FEATURED PROJECT</p>
+        <h2 className="project-title">{project.displayTitle.map((line) => <span key={line}>{line}</span>)}</h2>
+        <p className="project-description">{project.description}</p>
+        <ul className="tech-list" aria-label="Technologies">{project.technologies.map((tech) => <li key={tech}>{tech}</li>)}</ul>
+        <div className="project-actions">
+          <button className="project-details-toggle text-link" type="button" onClick={() => setDetailsOpen((value) => !value)} aria-expanded={detailsOpen} aria-controls={`details-${project.kind}`}>
+            {detailsOpen ? 'Close details' : 'Explore project'} <Icon name="arrow" size={15} />
+          </button>
+          {isPlaceholder
+            ? <span className="github-project unavailable" title="Add the repository URL in src/site/content.js when it is available"><Icon name="github" size={16} />GitHub link coming soon</span>
+            : <a className="github-project" href={project.github} target="_blank" rel="noreferrer" aria-label={`Visit ${project.title} on GitHub`}><Icon name="github" size={16} />GitHub <Icon name="arrow" size={13} /></a>}
+        </div>
+        <div className="detail-content" id={`details-${project.kind}`} hidden={!detailsOpen}>
+          <div><h3>Overview</h3><p>{project.description}</p></div>
+          <div><h3>Problem</h3><p>{project.problem}</p></div>
+          <div><h3>What I worked on</h3><p>{project.contribution}</p></div>
+          <div><h3>Current scope</h3><ul>{project.features.map((feature) => <li key={feature}>{feature}</li>)}</ul></div>
+          <div><h3>Technologies</h3><p>{project.technologies.join(' · ')}</p></div>
+        </div>
+      </div>
+      <button className="project-visual" type="button" data-project-visual aria-label={`View details for ${project.title}`} aria-expanded={detailsOpen} aria-controls={`details-${project.kind}`} onClick={() => setDetailsOpen((value) => !value)}>
+        {project.image ? <img src={project.image} alt={`${project.title} screenshot`} loading="lazy" /> : <div className={`preview-placeholder preview-${project.kind}`}>
+          <span className="preview-placeholder-note">PROJECT PREVIEW · REPLACE WITH SCREENSHOT</span>
+          <span className="preview-wordmark">{project.previewWord}</span>
+          <span className="preview-bottom">{project.previewCaption}</span>
+          <span className="preview-orbit" />
+          <span className="preview-shape" />
+        </div>}
+      </button>
+    </div>
+  </section>
 }
 
 function Projects() {
-  return <section className="section projects-section" id="projects"><div className="section-heading section-heading-row"><div><Eyebrow>02 / SELECTED WORK</Eyebrow><h2>Projects</h2></div><p>Ideas made tangible—one experiment, one problem,<br />one line at a time.</p></div><div className="project-grid">{projects.map((project) => <article className="project-card" key={project.number}><ProjectArtwork kind={project.kind} /><div className="project-info"><div className="project-kicker"><span>{project.number}</span><span>PERSONAL PROJECT</span></div><h3>{project.title}</h3><p>{project.description}</p><div className="tech-list">{project.technologies.map((tech) => <span key={tech}>{tech}</span>)}</div><div className="project-actions"><a className="github-project" href={project.github} target="_blank" rel="noreferrer" aria-label={`Visit ${project.title} GitHub repository`} title={project.kind === 'donation' ? 'Replace this repository placeholder when the repository is available' : `Visit ${project.title} on GitHub`}><Icon name="github" size={17} />GitHub</a></div></div></article>)}</div><p className="edit-note">Replace the Smart Donation Kiosk repository placeholder in <code>src/site/content.js</code> when it is available.</p></section>
+  return <>{projects.map((project, index) => <ProjectShowcase key={project.number} project={project} index={index} />)}</>
+}
+
+function TechStrip() {
+  const technologies = ['Python', 'JavaScript', 'React', 'Node.js', 'Git', 'GitHub', 'Firebase', 'MySQL', 'REST APIs', 'Software development']
+  const items = [...technologies, ...technologies]
+  return <div className="tech-strip" aria-label={`Technologies: ${technologies.join(', ')}`}><div className="tech-track" aria-hidden="true">{items.map((tech, index) => <span key={`${tech}-${index}`}>{tech}<i>✦</i></span>)}</div></div>
 }
 
 function Experience() {
-  return <section className="section experience-section" id="experience"><div className="section-heading section-heading-row"><div><Eyebrow>03 / THE PATH SO FAR</Eyebrow><h2>Experience</h2></div><p>Work, learning, and communities<br />that have shaped my journey.</p></div><div className="timeline">{experience.map((item, index) => <article className="timeline-item" key={item.place}><div className="timeline-marker"><span>{String(index + 1).padStart(2, '0')}</span></div><div className="timeline-date">{item.date}</div><div className="timeline-main"><div className="timeline-title"><h3>{item.place}</h3><span className="timeline-role">{item.role}</span></div><div className="timeline-location">{item.location}</div><ul>{item.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div></article>)}</div></section>
+  return <section className="experience-section scroll-reveal" id="experience">
+    <div className="section-inner editorial-width">
+      <SectionHeading label="EXPERIENCE" title="Learning by doing" description="Work and community experience." />
+      <div className="experience-list">{experience.map((item, index) => <article className="experience-item" key={item.place}>
+        <div className="experience-year">{item.date}</div>
+        <div className="experience-body"><div className="experience-title"><h3>{item.role}</h3><span>{item.place}</span></div><p className="experience-location">{item.location}</p><ul>{item.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div>
+        <span className="experience-index" aria-hidden="true">0{index + 1}</span>
+      </article>)}</div>
+    </div>
+  </section>
+}
+
+function About() {
+  return <section className="about-section scroll-reveal" id="about">
+    <div className="section-inner about-layout editorial-width">
+      <div><p className="eyebrow">A LITTLE ABOUT ME</p><h2>I’M A COMPUTER SCIENCE STUDENT WHO LIKES FIGURING OUT HOW THINGS WORK.</h2></div>
+      <div className="about-copy"><p>I’m studying Computer Science at Toronto Metropolitan University. I enjoy learning by building projects and exploring software, robotics, cloud computing, and how technology can solve useful problems.</p><p>Currently learning Python and based in Mississauga, Ontario.</p><p>Interested in software development and building thoughtful, useful technology.</p></div>
+    </div>
+  </section>
 }
 
 function Skills() {
-  return <section className="section skills-section" id="skills"><div className="section-heading section-heading-row"><div><Eyebrow>04 / THINGS IN MY TOOLKIT</Eyebrow><h2>Skills</h2></div><p>Tools I use today, and a few I’m<br />excited to keep exploring.</p></div><div className="skills-wrap"><div className="skill-feature"><span className="skill-spark">✳</span><h3>Built with<br /><em>curiosity.</em></h3><p>Learning through hands-on projects and steady practice.</p></div><div className="skill-cloud">{skillGroups.map((group, groupIndex) => <div className="skill-group" key={group.label}><h3>{group.label}</h3><div>{group.items.map((skill, index) => <span className={`skill-chip skill-chip-${(index + groupIndex) % 4}`} key={skill}><i />{skill}</span>)}</div></div>)}</div></div></section>
+  return <section className="skills-section scroll-reveal" id="skills">
+    <div className="section-inner editorial-width">
+      <SectionHeading label="SKILLS" title="Tools I work with" />
+      <div className="skills-list">{skillGroups.map((group) => <div className="skill-group" key={group.label}><h3>{group.label}</h3><ul>{group.items.map((skill) => <li key={skill}>{skill}</li>)}</ul></div>)}</div>
+    </div>
+  </section>
 }
 
 function Education() {
-  return <section className="section education-section" id="education"><div className="section-heading section-heading-row"><div><Eyebrow>05 / EDUCATION</Eyebrow><h2>Education</h2></div><p>Building a foundation<br />for what comes next.</p></div><article className="education-card"><span className="education-star" aria-hidden="true">✳</span><div><h3>{education.school}</h3><p>{education.program}</p><div className="education-details"><span>{education.graduation}</span><span>{education.location}</span></div></div></article></section>
+  return <section className="education-section scroll-reveal" id="education">
+    <div className="section-inner editorial-width">
+      <SectionHeading label="EDUCATION" title="Education" />
+      <article className="education-row"><h3>{education.school}</h3><p>{education.program}</p><div><span>{education.graduation}</span><span>{education.location}</span></div></article>
+    </div>
+  </section>
 }
 
 function Contact() {
-  return <section className="section contact-section" id="contact"><div className="contact-panel"><div className="contact-decoration" aria-hidden="true">✳</div><Eyebrow>06 / SAY HELLO</Eyebrow><h2>Let’s Build<br /><em>Something</em></h2><p>I’m always interested in learning, building new things, and connecting with people working on interesting technology.</p><a className="button button-primary" href={profileLinks.email}>Get in touch <Icon name="arrow" size={16} /></a><div className="contact-links">{contactLinks.map((link) => <a key={link.label} href={link.href} target={link.label === 'Email' ? undefined : '_blank'} rel="noreferrer" aria-label={link.label === 'Email' ? 'Email Zayan' : `Visit Zayan’s ${link.label}`}><Icon name={link.label === 'Email' ? 'mail' : link.label.toLowerCase()} size={17} /><span>{link.label}</span><strong>{link.value}</strong></a>)}</div></div></section>
+  return <section className="contact-section" id="contact">
+    <div className="section-inner editorial-width">
+      <p className="eyebrow">GET IN TOUCH</p><h2>HAVE AN IDEA?<br /><span>LET’S TALK.</span><a href={profileLinks.email} aria-label="Email Zayan"><Icon name="arrow" size={32} /></a></h2>
+      <div className="contact-links">{contactLinks.map((link) => <a key={link.label} href={link.href} target={link.label === 'Email' ? undefined : '_blank'} rel="noreferrer" aria-label={link.label === 'Email' ? 'Email Zayan' : `Visit Zayan’s ${link.label}`}><Icon name={link.label === 'Email' ? 'mail' : link.label.toLowerCase()} size={17} /><span>{link.label}</span><strong>{link.value}</strong><Icon name="arrow" size={14} /></a>)}</div>
+    </div>
+  </section>
 }
 
 function Footer() {
-  return <footer className="footer"><a className="footer-brand" href="#home">Zayan Syed<span>.</span></a><span>© 2026 Zayan Syed</span><span>Made with curiosity <b>✳</b></span><a href="#home" className="to-top">Back to top ↑</a></footer>
+  return <footer className="footer"><div className="footer-inner editorial-width"><a className="footer-brand" href="#home">Zayan Syed<span>.</span></a><span>© {new Date().getFullYear()} Zayan Syed</span><a href="#home">Back to top ↑</a></div></footer>
+}
+
+function ProjectCursor() {
+  const cursorRef = useRef(null)
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion || !window.matchMedia('(pointer: fine)').matches) return undefined
+    let frame = 0
+    let x = 0
+    let y = 0
+    let visible = false
+    const onMove = (event) => {
+      x = event.clientX
+      y = event.clientY
+      visible = Boolean(event.target.closest?.('[data-project-visual]'))
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        if (cursorRef.current) {
+          cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`
+          cursorRef.current.classList.toggle('is-visible', visible)
+        }
+        frame = 0
+      })
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => { window.removeEventListener('pointermove', onMove); if (frame) cancelAnimationFrame(frame) }
+  }, [])
+  return <div className="project-cursor" ref={cursorRef} aria-hidden="true"><span>VIEW</span><i>↗</i></div>
+}
+
+function ScrollEffects() {
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const finePointer = window.matchMedia('(pointer: fine)').matches
+    const revealTargets = document.querySelectorAll('.scroll-reveal')
+    const revealObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible')
+        revealObserver.unobserve(entry.target)
+      }
+    }), { threshold: 0.08 })
+    revealTargets.forEach((target) => revealObserver.observe(target))
+
+    const navLinks = [...document.querySelectorAll('.topbar nav a')]
+    const activeObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (!entry.isIntersecting) return
+      navLinks.forEach((link) => {
+        const isProjectSection = entry.target.classList.contains('project-showcase')
+        const active = link.hash === `#${entry.target.id}` || (isProjectSection && link.hash === '#projects')
+        link.classList.toggle('active', active)
+        if (active) link.setAttribute('aria-current', 'location')
+        else link.removeAttribute('aria-current')
+      })
+    }), { rootMargin: '-38% 0px -52% 0px', threshold: 0 })
+    document.querySelectorAll('main [id]').forEach((section) => activeObserver.observe(section))
+
+    let frame = 0
+    const onScroll = () => {
+      if (reduceMotion || !finePointer || frame) return
+      frame = requestAnimationFrame(() => {
+        document.querySelectorAll('.project-visual').forEach((visual) => {
+          const bounds = visual.getBoundingClientRect()
+          if (bounds.bottom < -100 || bounds.top > window.innerHeight + 100) return
+          const amount = Math.max(-7, Math.min(7, (bounds.top + bounds.height / 2 - window.innerHeight / 2) * -.012))
+          visual.style.setProperty('--scroll-y', `${amount.toFixed(1)}px`)
+        })
+        frame = 0
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => {
+      revealObserver.disconnect()
+      activeObserver.disconnect()
+      window.removeEventListener('scroll', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [])
+  return null
 }
 
 export default function App() {
-  return <><Artwork /><Navigation /><main><Hero /><About /><Projects /><Experience /><Skills /><Education /><Contact /><Footer /></main></>
+  return <><Navigation /><main><Hero /><Projects /><TechStrip /><Experience /><About /><Skills /><Education /><Contact /><Footer /></main><CommandPalette /><ProjectCursor /><ScrollEffects /></>
 }
