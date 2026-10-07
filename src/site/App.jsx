@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { contactLinks, education, experience, profileLinks, projects, skillGroups } from './content.js'
 
-const navigation = [['About', '#about'], ['Projects', '#projects'], ['Experience', '#experience'], ['Skills', '#skills'], ['Education', '#education'], ['Contact', '#contact']]
+const navigation = [['About', '#about'], ['Skills', '#skills'], ['Projects', '#projects'], ['Experience', '#experience'], ['Education', '#education'], ['Contact', '#contact']]
 const commandItems = [
   { label: 'Projects', hint: 'View selected work', href: '#projects' },
   { label: 'About', hint: 'A little about me', href: '#about' },
@@ -338,5 +338,5 @@ function ScrollEffects() {
 }
 
 export default function App() {
-  return <><Navigation /><main><Hero /><Projects /><TechStrip /><Experience /><About /><Skills /><Education /><Contact /><Footer /></main><CommandPalette /><ProjectCursor /><ScrollEffects /></>
+  return <><Navigation /><main><Hero /><About /><Skills /><Projects /><TechStrip /><Experience /><Education /><Contact /><Footer /></main><CommandPalette /><ProjectCursor /><ScrollEffects /></>
 }
