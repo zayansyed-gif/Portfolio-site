@@ -198,8 +198,31 @@ function Experience() {
 function About() {
   return <section className="about-section scroll-reveal" id="about">
     <div className="section-inner about-layout editorial-width">
-      <div><p className="eyebrow">A LITTLE ABOUT ME</p><h2>I’M A COMPUTER SCIENCE STUDENT WHO LIKES FIGURING OUT HOW THINGS WORK.</h2></div>
-      <div className="about-copy"><p>I’m studying Computer Science at Toronto Metropolitan University. I enjoy learning by building projects and exploring software, robotics, cloud computing, and how technology can solve useful problems.</p><p>Currently learning Python and based in Mississauga, Ontario.</p><p>Interested in software development and building thoughtful, useful technology.</p></div>
+      <div className="about-heading">
+        <p className="eyebrow">A LITTLE ABOUT ME</p>
+        <h2 aria-label="I like building, learning and figuring things out.">
+          <span className="about-title-line">I like</span>
+          <span className="about-title-line"><em>BUILDING,</em></span>
+          <span className="about-title-line">learning &amp; figuring</span>
+          <span className="about-title-line">things out.</span>
+        </h2>
+        <svg className="about-ornament" viewBox="0 0 62 24" aria-hidden="true"><path d="M2 17C13 3 20 22 31 10S48 2 60 8" /><circle cx="49" cy="5" r="2" /></svg>
+      </div>
+      <div className="about-content">
+        <div className="about-copy">
+          <p>Hey! I'm Zayan — a Computer Science student at Toronto Metropolitan University who enjoys building things and learning along the way.</p>
+          <p>I like taking ideas and turning them into real projects, whether that means working with APIs, experimenting with new technologies, or figuring out something I've never done before.</p>
+          <p>Right now, I'm interested in software development, cloud computing, and exploring where computer science can take me. I also like adding a bit of personality to the things I build — this portfolio included!</p>
+        </div>
+        <div className="about-currently">
+          <p className="eyebrow">CURRENTLY</p>
+          <dl>
+            <div><dt>Learning</dt><dd>Python</dd></div>
+            <div><dt>Building</dt><dd>Space Mission Dashboard</dd></div>
+            <div><dt>Exploring</dt><dd>Cloud Computing</dd></div>
+          </dl>
+        </div>
+      </div>
     </div>
   </section>
 }
