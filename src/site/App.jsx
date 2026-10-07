@@ -128,8 +128,8 @@ function Hero() {
   </section>
 }
 
-function SectionHeading({ label, title, description }) {
-  return <div className="section-heading"><div><p className="eyebrow">{label}</p><h2>{title}</h2></div>{description && <p className="section-description">{description}</p>}</div>
+function SectionHeading({ label, title, description, mark }) {
+  return <div className="section-heading"><div><p className="eyebrow">{label}</p><h2>{title}{mark && <span className="section-heading-mark" aria-hidden="true">{mark}</span>}</h2></div>{description && <p className="section-description">{description}</p>}</div>
 }
 
 function ProjectShowcase({ project, index }) {
@@ -204,11 +204,34 @@ function About() {
   </section>
 }
 
+function SkillIcon({ name }) {
+  if (name === 'GitHub') return <Icon name="github" size={18} />
+
+  const svg = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }
+  switch (name) {
+    case 'Python': return <svg {...svg} viewBox="0 0 24 24" stroke="none"><path fill="currentColor" d="M11.9 2C7.2 2 7.5 4 7.5 4v2.1h4.6v.8H5.7S2.5 6.5 2.5 12s2.8 5.5 2.8 5.5h1.7v-2.4s-.1-2.9 2.8-2.9h4.7s2.6 0 2.6-2.5V4.5S17.5 2 11.9 2Zm-2.6 2.1a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/><path fill="currentColor" d="M12.1 22c4.7 0 4.4-2 4.4-2v-2.1h-4.6v-.8h6.4s3.2.4 3.2-5.1-2.8-5.5-2.8-5.5H17v2.4s.1 2.9-2.8 2.9H9.5s-2.6 0-2.6 2.5v5.2S6.5 22 12.1 22Zm2.6-2.1a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Z"/></svg>
+    case 'JavaScript': return <svg {...svg} stroke="none"><rect x="2.5" y="2.5" width="19" height="19" rx="2" fill="currentColor"/><path d="M12.5 17.4c.4.7.9 1 1.7 1 .7 0 1.1-.3 1.1-.8 0-.6-.5-.8-1.4-1.2-1.3-.6-2.2-1.2-2.2-2.7 0-1.4 1.1-2.4 2.8-2.4 1.2 0 2.1.4 2.7 1.5l-1.5 1c-.3-.6-.6-.8-1.1-.8s-.8.3-.8.7c0 .5.3.7 1.2 1.1 1.5.7 2.4 1.3 2.4 2.8 0 1.6-1.3 2.5-3.1 2.5-1.7 0-2.8-.8-3.3-1.9l1.5-.8ZM8.3 11.5H6.4v5.1c0 .9-.3 1.2-.9 1.2-.5 0-.9-.3-1.2-.7l-1.3 1c.6 1 1.4 1.4 2.7 1.4 1.8 0 2.6-.9 2.6-2.8v-5.2Z" fill="var(--skill-icon-cutout, #dce6d7)"/></svg>
+    case 'HTML': case 'CSS': {
+      const digit = name === 'HTML' ? '5' : '3'
+      return <svg {...svg} stroke="none"><path fill="currentColor" d="M4 2h16l-1.5 17L12 22l-6.5-3L4 2Z"/><path fill="var(--skill-icon-cutout, #dce6d7)" d="M8 6h8l-.2 2H10l.2 2h5.4l-.7 6L12 17.5 9 16.2l-.2-2h2l.1.8 1.1.5 1.1-.5.2-2H8.3L8 6Z"/><text x="17.3" y="18.8" fill="var(--skill-icon-cutout, #dce6d7)" fontSize="5" fontWeight="700">{digit}</text></svg>
+    }
+    case 'React': return <svg {...svg}><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>
+    case 'Node.js': return <svg {...svg}><path d="m12 2.6 8.2 4.7v9.4L12 21.4l-8.2-4.7V7.3L12 2.6Z"/><text x="7.1" y="14.7" fill="currentColor" stroke="none" fontSize="6.2" fontWeight="700">JS</text></svg>
+    case 'Firebase': return <svg {...svg} stroke="none"><path fill="currentColor" d="m6.2 21 2-18.1c.1-.8 1.1-1 1.5-.3l2 3.7 1.7-3.2c.4-.7 1.4-.5 1.5.3L18 21l-5.7-3.2L6.2 21Z"/><path fill="var(--skill-icon-cutout, #dce6d7)" d="m8.2 17.8 4.2-7.9 1 1.9 3.2 5.9-4.3-2.4-4.1 2.5Z" opacity=".78"/></svg>
+    case 'MySQL': return <svg {...svg}><path d="M3.5 7.5c1.8-2 4.5-2.2 6.6-.8 1.5 1 2.6 2.8 3.7 4.1 1.2 1.4 2.5 2.1 4.4 1.9-1.4 1.6-3.7 1.8-5.4.6-1.5-1.1-2.3-2.7-3.7-3.9-1.6-1.4-3.6-1.8-5.6-.8Z"/><path d="M15.5 11.9c.3-2.7 2.3-4.8 5-5.4-.8 1.6-.8 3.2-.1 4.3M17.9 13.1c.8 1.4 1.1 3.1.6 4.7M4 13.5c1.7 1.7 3.7 2.4 6.1 2.2"/><circle cx="19.1" cy="5" r=".7" fill="currentColor" stroke="none"/></svg>
+    case 'Git': case 'Version Control': return <svg {...svg}><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 7v7a5 5 0 0 0 5 5h5M13 9l3-3-3-3"/></svg>
+    case 'VS Code': return <svg {...svg} stroke="none"><path fill="currentColor" d="M17.5 2.4 7.6 11.1 4.2 8.5 2 10.2v3.6l2.2 1.7 3.4-2.6 9.9 8.7 4.5-1.8V4.2l-4.5-1.8ZM17 7v10l-5.8-5 5.8-5Z"/></svg>
+    case 'REST APIs': return <svg {...svg}><circle cx="5" cy="12" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="m7 11 9.8-4M7 13l9.8 4"/></svg>
+    case 'System Architecture': return <svg {...svg}><rect x="8" y="3" width="8" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><path d="M12 8v4M6.5 12h11M6.5 12v4M17.5 12v4"/></svg>
+    default: return <svg {...svg}><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 7v7a5 5 0 0 0 5 5h5M13 9l3-3-3-3"/></svg>
+  }
+}
+
 function Skills() {
   return <section className="skills-section scroll-reveal" id="skills">
     <div className="section-inner editorial-width">
-      <SectionHeading label="SKILLS" title="Tools I work with" />
-      <div className="skills-list">{skillGroups.map((group) => <div className="skill-group" key={group.label}><h3>{group.label}</h3><ul>{group.items.map((skill) => <li key={skill}>{skill}</li>)}</ul></div>)}</div>
+      <SectionHeading label="SKILLS" title="Tools I work with" mark="</>" />
+      <div className="skills-list">{skillGroups.map((group) => <div className="skill-group" key={group.label}><h3>{group.label}</h3><ul>{group.items.map((skill) => <li key={skill} className="skill-chip" style={{ '--skill-icon-cutout': '#dce6d7' }}><SkillIcon name={skill} /><span>{skill}</span></li>)}</ul></div>)}</div>
     </div>
   </section>
 }
